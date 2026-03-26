@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import telebot
 import requests
 
-load_dotenv("src/private")
+load_dotenv()
 
 API_TOKEN = os.environ.get('API_TOKEN')
 TOKEN = os.environ.get('BOT_TOKEN')
