@@ -36,27 +36,40 @@ def get_messsage(message):
 
             headers = {"authorization": f"{API_TOKEN}"}
             data = {"message": markdown_message, "date": f"{date}"}
-            requests.post(API_URL, json=data, headers=headers)
+
+            try:
+                requests.post(API_URL, json=data, headers=headers)
+            except requests.exceptions.RequestException as e:
+                print(e)
     elif message.content_type == 'photo':
         message_text = message.caption
-        if message_text.lower().endswith('#оголошення'):
-            file_id = message.photo[-1].file_id
-            file_info = bot.get_file(file_id)
-            file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
-            date = datetime.fromtimestamp(message.date)
+        if message_text:
+            if message_text.lower().endswith('#оголошення'):
+                file_id = message.photo[-1].file_id
+                file_info = bot.get_file(file_id)
+                file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
+                date = datetime.fromtimestamp(message.date)
 
-            markdown_message = markdown_convert(message.caption_entities, entries, message_text, channel_message)
+                markdown_message = markdown_convert(message.caption_entities, entries, message_text, channel_message)
 
-            headers = {"authorization": f"{API_TOKEN}"}
-            data = {"message": markdown_message, "date": f"{date}", "image": True}
+                headers = {"authorization": f"{API_TOKEN}"}
+                data = {"message": markdown_message, "date": f"{date}", "image": True}
 
-            date_str = str(date).replace(" ", "_").replace(":", "-")
-            urllib.request.urlretrieve(file_url, f"src/{date_str}.png")
-            requests.post(API_URL, json=data, headers=headers)
+                date_str = str(date).replace(" ", "_").replace(":", "-")
+                try:
+                    urllib.request.urlretrieve(file_url, f"src/{date_str}.png")
+                except NotADirectoryError:
+                    print("Not a directory!")
 
-# Telegram json to Markdown convertion (fried my brain)
+                try:
+                    requests.post(API_URL, json=data, headers=headers)
+                except requests.exceptions.RequestException as e:
+                    print(e)
+
+# Telegram json to markdown convertion
 def markdown_convert(needed_entities, entries, message_text, channel_message):
     if needed_entities:
+        # Generates a list of start/end points of formating
         for entity in needed_entities:
             entry_start = [entity.offset, entity.type + "_start"]
             entry_end = [entity.length + entity.offset, entity.type + "_end"]
@@ -67,6 +80,7 @@ def markdown_convert(needed_entities, entries, message_text, channel_message):
         channel_message = message_text
 
     last_index = 0
+    # Adds formating in given start/end points
     for entry in range(len(entries)):
 
         index = entries[entry][0]
