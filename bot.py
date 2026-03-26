@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import telebot
 import requests
+import urllib.request
 
 load_dotenv()
 
@@ -46,7 +47,8 @@ def get_messsage(message):
             markdown_message = markdown_convert(message.caption_entities, entries, message_text, channel_message)
 
             headers = {"Authorization": f"{API_TOKEN}"}
-            data = {"Message": markdown_message, "File Url": file_url, "Date": f"{date}"}
+            data = {"Message": markdown_message, "Date": f"{date}"}
+            urllib.request.urlretrieve(file_url, "src/photo.png")
             requests.post(API_URL, json=data, headers=headers)
 
 # Telegram json to Markdown convertion (fried my brain)
