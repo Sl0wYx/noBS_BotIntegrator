@@ -10,7 +10,7 @@ API_TOKEN = os.environ.get('API_TOKEN')
 TOKEN = os.environ.get('BOT_TOKEN')
 MY_ID = os.environ.get('MY_ID')
 
-API_URL = "https://api.noboons.world/receive_message"
+API_URL = "https://api.noboobs.world/receive_message"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -29,7 +29,7 @@ def get_messsage(message):
     if message.content_type == 'text':
         message_text = message.text
         if message_text.lower().endswith('#оголошення'):
-            markdown_message = styles(message.entities, entries, message_text, channel_message)
+            markdown_message = markdown_convert(message.entities, entries, message_text, channel_message)
             date = datetime.fromtimestamp(message.date)
 
             headers = {"Authorization": f"{API_TOKEN}"}
@@ -43,14 +43,13 @@ def get_messsage(message):
             file_url = f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
             date = datetime.fromtimestamp(message.date)
 
-
             markdown_message = markdown_convert(message.caption_entities, entries, message_text, channel_message)
 
             headers = {"Authorization": f"{API_TOKEN}"}
             data = {"Message": markdown_message, "File Url": file_url, "Date": f"{date}"}
             requests.post(API_URL, json=data, headers=headers)
 
-# Telegram json to Markdown convertion, please don't judge
+# Telegram json to Markdown convertion (fried my brain)
 def markdown_convert(needed_entities, entries, message_text, channel_message):
     if needed_entities:
         for entity in needed_entities:
