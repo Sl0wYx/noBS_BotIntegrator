@@ -5,6 +5,7 @@ import telebot
 import requests
 import urllib.request
 
+
 load_dotenv()
 
 API_TOKEN = os.environ.get('API_TOKEN')
@@ -33,8 +34,8 @@ def get_messsage(message):
             markdown_message = markdown_convert(message.entities, entries, message_text, channel_message)
             date = datetime.fromtimestamp(message.date)
 
-            headers = {"Authorization": f"{API_TOKEN}"}
-            data = {"Message": markdown_message, "Date": f"{date}"}
+            headers = {"authorization": f"{API_TOKEN}"}
+            data = {"message": markdown_message, "date": f"{date}"}
             requests.post(API_URL, json=data, headers=headers)
     elif message.content_type == 'photo':
         message_text = message.caption
@@ -46,9 +47,11 @@ def get_messsage(message):
 
             markdown_message = markdown_convert(message.caption_entities, entries, message_text, channel_message)
 
-            headers = {"Authorization": f"{API_TOKEN}"}
-            data = {"Message": markdown_message, "Date": f"{date}"}
-            urllib.request.urlretrieve(file_url, "src/photo.png")
+            headers = {"authorization": f"{API_TOKEN}"}
+            data = {"message": markdown_message, "date": f"{date}", "image": True}
+
+            date_str = str(date).replace(" ", "_").replace(":", "-")
+            urllib.request.urlretrieve(file_url, f"src/{date_str}.png")
             requests.post(API_URL, json=data, headers=headers)
 
 # Telegram json to Markdown convertion (fried my brain)
