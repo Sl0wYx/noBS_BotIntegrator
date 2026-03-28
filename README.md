@@ -5,13 +5,14 @@ Telegram bot which helps with my minecraft server community automation.
 Parses telegram channel message and sends converted markdown to my server API.
 
 ## How it works
-Bot listens for messages marked with announcment tag, formats them to markdown and sends it to FastAPI where front end reads it.
+Bot listens for messages marked with announcement tag, formats them to markdown and sends it to FastAPI where front end reads it. Runs alongside the API via docker-compose.
 
 ## Tech stack
 - Python
-- python-telegram-bot
+- pyTelegramBotAPI
 - FastAPI
-- requests.
+- requests
+- Docker
 
 ## API repo link
 https://github.com/Sl0wYx/noBS_ServerAPI/
