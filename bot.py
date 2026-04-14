@@ -68,6 +68,9 @@ def get_messsage(message):
 
 # Telegram json to markdown convertion
 def markdown_convert(needed_entities, entries, message_text, channel_message):
+    STYLES = {"bold_start":"**", "italic_start":"*", "underline_start":"<u>",
+              "bold_end":"**", "italic_end":"*", "url_start":"[url](", "url_end":")", "underline_end":"</u>"}
+
     if needed_entities:
         # Generates a list of start/end points of formating
         for entity in needed_entities:
@@ -86,22 +89,8 @@ def markdown_convert(needed_entities, entries, message_text, channel_message):
         index = entries[entry][0]
         style = entries[entry][1]
 
-        if style == "bold_start":
-            channel_message += message_text[last_index:index] + "**"
-        elif style == "italic_start":
-            channel_message += message_text[last_index:index] + "*"
-        elif style == "underline_start":
-            channel_message += message_text[last_index:index] + "<u>"
-        elif style == "url_start":
-            channel_message += message_text[last_index:index] + "[url]("
-        elif style == "bold_end":
-            channel_message += message_text[last_index:index] + "**"
-        elif style == "italic_end":
-            channel_message += message_text[last_index:index] + "*"
-        elif style == "underline_end":
-            channel_message += message_text[last_index:index] + "</u>"
-        elif style == "url_end":
-            channel_message += message_text[last_index:index] + ")"
+        if style in STYLES:
+            channel_message += message_text[last_index:index] + STYLES[style]
         else:
             channel_message += message_text[last_index:index]
 
