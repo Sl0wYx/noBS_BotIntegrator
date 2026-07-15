@@ -14,6 +14,9 @@ MY_ID = os.environ.get('MY_ID')
 
 API_URL = "https://api.noboobs.world/receive_message"
 
+STYLES = {"bold_start":"**", "italic_start":"_", "underline_start":"<u>",
+              "bold_end":"**", "italic_end":"_", "url_start":"[url](", "url_end":")", "underline_end":"</u>"}
+
 bot = telebot.TeleBot(TOKEN)
 
 def is_me(message):
@@ -68,9 +71,6 @@ def get_messsage(message):
 
 # Telegram json to markdown convertion
 def markdown_convert(needed_entities, entries, message_text, channel_message):
-    STYLES = {"bold_start":"**", "italic_start":"*", "underline_start":"<u>",
-              "bold_end":"**", "italic_end":"*", "url_start":"[url](", "url_end":")", "underline_end":"</u>"}
-
     if needed_entities:
         # Generates a list of start/end points of formating
         for entity in needed_entities:
