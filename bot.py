@@ -61,7 +61,7 @@ def get_messsage(message):
                 date_str = str(date).replace(" ", "_").replace(":", "-")
                 try:
                     urllib.request.urlretrieve(file_url, f"src/{date_str}.png")
-                    utils.upload_file("src/{date_str}.png", "/history")
+                    utils.upload_file(f"src/{date_str}.png", "/history")
                 except NotADirectoryError:
                     print("Not a directory!")
 
