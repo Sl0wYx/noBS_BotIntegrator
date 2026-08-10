@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import telebot
 import requests
 import urllib.request
-
+from core import utils
 
 load_dotenv()
 
@@ -61,6 +61,7 @@ def get_messsage(message):
                 date_str = str(date).replace(" ", "_").replace(":", "-")
                 try:
                     urllib.request.urlretrieve(file_url, f"src/{date_str}.png")
+                    utils.upload_file("src/{date_str}.png", "/history")
                 except NotADirectoryError:
                     print("Not a directory!")
 
