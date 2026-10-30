@@ -20,7 +20,7 @@ TOKEN = os.environ.get('BOT_TOKEN')
 MY_ID = os.environ.get('MY_ID')
 
 # Initial variables
-API_URL = "http://127.0.0.1:8000/receive_message"
+API_URL = "https://api.noboobs.world/receive_message"
 bot = telebot.TeleBot(TOKEN)
 
 # Multiple photos handling
