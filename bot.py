@@ -1,9 +1,8 @@
-import asyncio
 import os
 import threading
 
+from collections import defaultdict
 from datetime import datetime
-import time
 from threading import Timer
 
 from dotenv import load_dotenv
@@ -30,51 +29,52 @@ def is_me(message):
 def start(message):
     bot.send_message(message.chat.id, f"Hello! Your id: {message.from_user.id}")
 
-media_group = {
-    'message_date': None,
-    "photos": [],
-    "data": None,
-    "amount": 0
-}
-
-def return_multiple_photos(timer):
-    print("Timer executing.", timer)
+def return_multiple_photos():
     global media_group
+    media_group["state"] = "PROCESSING"
+
     headers = {"authorization": f"{API_TOKEN}"}
     data = media_group["data"]
     message_date = media_group["message_date"]
-    data["photos_amount"] = media_group["amount"]
 
     for i, file_url in enumerate(media_group["photos"]):
         date_str = str(message_date).replace(" ", "_").replace(":", "-") + f"_{i}"
         try:
-            while not urllib.request.urlretrieve(file_url, f"src/{date_str}.png"):
-                continue
+            urllib.request.urlretrieve(file_url, f"src/{date_str}.png")
             utils.upload_file(f"src/{date_str}.png", f"/history/{date_str}.png")
         except NotADirectoryError:
             print("Not a directory!")
 
-    # try:
-    # requests.post(API_URL, json=data, headers=headers)
-    # except requests.exceptions.RequestException as e:
-    # print(e)
+        # try:
+        # requests.post(API_URL, json=data, headers=headers)
+        # except requests.exceptions.RequestException as e:
+        # print(e)
 
     print(data)
     media_group = {
-        'message_date': None,
+        "state": "EMPTY", # WAITING = waiting for the photo to arrive;
+                        # RECORDING = recording new photo;
+                        # PROCESSING = processing recorded media
+                        # EMPTY = no group has been received
+        'message_date': "",
         "photos": [],
-        "data": None,
-        "amount": 0
+        "data": defaultdict(int)
     }
 
-
-t = None
+t_lock = threading.Lock()
+media_group = {
+    "state": "EMPTY",  # WAITING = waiting for the photo to arrive;
+    # RECORDING = recording new photo;
+    # PROCESSING = processing recorded media,
+    # EMPTY = no group has been received
+    'message_date': "",
+    "photos": [],
+    "data": defaultdict(int) | defaultdict(str)
+}
+t = threading.Timer(100, return_multiple_photos)
 @bot.channel_post_handler(content_types=['text', 'photo'])
 def get_messsage(message):
     global media_group, t
-
-    print(f"Handler started: {message.message_id}, thread={threading.current_thread().name}")
-    print(id(t))
     entries = []
     channel_message = ""
 
@@ -111,15 +111,16 @@ def get_messsage(message):
             markdown_message = utils.markdown_convert(message.caption_entities, entries, message_text, channel_message)
 
             headers = {"authorization": f"{API_TOKEN}"}
-            data = {"message": markdown_message, "date": f"{message_date}", "image": True}
+            data = {"message": markdown_message, "date": f"{message_date}", "images": 1}
 
             #try:
                 # requests.post(API_URL, json=data, headers=headers)
             #except requests.exceptions.RequestException as e:
                 #print(e)
         elif message.media_group_id:
-            print("Happened!")
-            if t:
+
+            media_group["state"] = "RECORDING"
+            if t.is_alive():
                 t.cancel()
 
             message_date = datetime.fromtimestamp(message.date)
@@ -131,15 +132,17 @@ def get_messsage(message):
                 markdown_message = utils.markdown_convert(message.caption_entities, entries, message_text, channel_message)
 
                 media_group["message_date"] = message_date
-                media_group["data"] = {"message": markdown_message, "date": f"{message_date}", "images": True, "photos_amount":0}
+                media_group["data"] = {"message": markdown_message, "date": f"{message_date}"}
 
             media_group["photos"].append(file_url)
-            media_group["amount"] += 1
+            media_group["data"]["images"] += 1
 
-            timer = time.time()
-            t = Timer(0.2, return_multiple_photos, args=[timer])
-            print("Created timer:", timer)
-            t.start()
+            with t_lock:
+                if media_group["state"] == "RECORDING":
+                    t = Timer(0.01, return_multiple_photos)
+                    t.start()
+                    media_group["state"] = "WAITING"
+
 
 
 print("Bot is running...")
