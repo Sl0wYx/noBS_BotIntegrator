@@ -1,6 +1,9 @@
 import os
 import subprocess
+
 from dotenv import load_dotenv
+
+API_URL = "https://api.noboobs.world/receive_message"
 
 ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env"))
 NEXTCLOUD_URL = "https://cloud.noboobs.world/remote.php/dav/files/{username}/"
@@ -21,7 +24,6 @@ def upload_file(file_path: str, remote_path: str):
         ],
         check=True,
     )
-
 
 STYLES = {"bold_start":"**", "italic_start":"_", "underline_start":"<u>",
               "bold_end":"**", "italic_end":"_", "url_start":"[url](", "url_end":")", "underline_end":"</u>"}
