@@ -60,7 +60,7 @@ def return_multiple_photos():
 
 @bot.channel_post_handler(content_types=['text', 'photo'])
 def get_messsage(message):
-    global media_group, t
+    global t
     entries = []
     channel_message = ""
 
